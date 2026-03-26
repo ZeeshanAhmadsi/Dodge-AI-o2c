@@ -1,0 +1,836 @@
+{
+  "PID_LEAD_PAGE": {
+    "Lead": {
+      "description": "Represents a sales lead — a potential customer who has shown interest in a product or service. This is the central entity in the Lead Management System (LMS), connected to customer data, sales stages, communication history, and AI-driven insights.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Internal unique identifier for the lead (system-generated)."
+        },
+        "publicId": {
+          "type": "String",
+          "unique": true,
+          "nullable": false,
+          "description": "Externally visible lead ID used in APIs, UI, and tracking."
+        },
+        "source": {
+          "type": "Enum",
+          "enumName": "LeadSource",
+          "values": [
+            "WEBSITE",
+            "LANDING_PAGE",
+            "FACEBOOK_ADS",
+            "GOOGLE_ADS",
+            "LINKEDIN_ADS",
+            "ORGANIC_SEARCH",
+            "SOCIAL_MEDIA",
+            "REFERRAL",
+            "AFFILIATE",
+            "EMAIL_CAMPAIGN",
+            "CHATBOT",
+            "WEBINAR",
+            "WHATSAPP_CLICK",
+            "INCOMING_CALL",
+            "WALK_IN",
+            "EVENT",
+            "PRINT_MEDIA",
+            "RADIO",
+            "TV",
+            "FLYER",
+            "OUTDOOR",
+            "REFERRAL_PERSONAL",
+            "PARTNER",
+            "FRANCHISE",   
+            "MANUAL_ENTRY",
+            "CRM_IMPORT",
+            "API",
+            "MOBILE_APP",
+            "OTHER"
+          ],
+          "nullable": false,
+          "description": "Specific origin channel of the lead. Associated Enum: LeadSource (FACEBOOK_ADS, WEBSITE, WALK_IN, REFERRAL, OTHER)."
+        },
+        "sourceCategory": {
+          "type": "Enum",
+          "enumName": "SourceCategory",
+          "values": [
+            "ONLINE",
+            "OFFLINE",
+            "INTERNAL"
+          ],
+          "nullable": true,
+          "description": "Broad grouping of the lead source. Associated Enum: SourceCategory (ONLINE, OFFLINE, INTERNAL)."
+        },
+        "score": {
+          "type": "Int",
+          "nullable": true,
+          "description": "AI-generated score indicating likelihood of conversion."
+        },
+        "scoreLastUpdated": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Timestamp when AI score was last updated."
+        },
+        "customerId": {
+          "type": "String",
+          "nullable": true,
+          "references": "Customer.id",
+          "description": "Reference to the associated customer record."
+        },
+        "isDuplicate": {
+          "type": "Boolean",
+          "default": false,
+          "nullable": false,
+          "description": "Indicates whether this lead is marked as a duplicate."
+        },
+        "organizationId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Organization.id",
+          "description": "Organization that owns this lead."
+        },
+        "proposalAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Timestamp when a proposal was shared with the lead."
+        },
+        "isDeleted": {
+          "type": "Boolean",
+          "default": false,
+          "nullable": false,
+          "description": "Soft delete flag (true means logically deleted from the system)."
+        },
+        "deletedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Timestamp when the lead was marked as soft deleted."
+        },
+        "stageId": {
+          "type": "String",
+          "nullable": true,
+          "references": "Stage.id",
+          "description": "Current stage in the sales pipeline (e.g., New, Qualified, Won)."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Timestamp when the lead was created."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": false,
+          "default": "auto-updated",
+          "description": "Timestamp automatically updated whenever the lead record changes."
+        },
+        "createdById": {
+          "type": "String",
+          "nullable": true,
+          "references": "User.id",
+          "description": "User who created the lead."
+        },
+        "updatedById": {
+          "type": "String",
+          "nullable": true,
+          "references": "User.id",
+          "description": "User who last updated the lead."
+        },
+        "storeId": {
+          "type": "String",
+          "nullable": true,
+          "references": "Store.id",
+          "description": "Store or branch responsible for this lead."
+        },
+        "linkId": {
+          "type": "String",
+          "nullable": true,
+          "references": "Lead.id",
+          "description": "Reference to another lead (self-linking for duplicates or related leads)."
+        },
+        "assignedToId": {
+          "type": "String",
+          "nullable": true,
+          "references": "User.id",
+          "description": "Salesperson assigned to handle this lead."
+        },
+        "assignedToAI": {
+          "type": "Boolean",
+          "default": false,
+          "nullable": false,
+          "description": "Indicates whether this lead is handled by an AI agent instead of a human user."
+        }
+      },
+      "relations": {
+        "customer": {
+          "type": "Many-to-One",
+          "target": "Customer",
+          "foreignKey": "customerId",
+          "description": "Each lead may belong to a customer."
+        },
+        "stage": {
+          "type": "Many-to-One",
+          "target": "Stage",
+          "foreignKey": "stageId",
+          "description": "Sales stage of the lead in the pipeline."
+        },
+        "assignedTo": {
+          "type": "Many-to-One",
+          "target": "User",
+          "foreignKey": "assignedToId",
+          "description": "Salesperson responsible for this lead."
+        },
+        "createdBy": {
+          "type": "Many-to-One",
+          "target": "User",
+          "foreignKey": "createdById",
+          "description": "User who created this lead."
+        },
+        "updatedBy": {
+          "type": "Many-to-One",
+          "target": "User",
+          "foreignKey": "updatedById",
+          "description": "User who last modified this lead."
+        },
+        "linkedLead": {
+          "type": "Many-to-One (Self)",
+          "target": "Lead",
+          "foreignKey": "linkId",
+          "description": "Parent or related lead (used for merging or linking duplicates)."
+        },
+        "linkedFrom": {
+          "type": "One-to-Many (Self)",
+          "target": "Lead",
+          "mappedBy": "linkId",
+          "description": "Leads that are linked to this lead."
+        },
+        "tasks": {
+          "type": "One-to-Many",
+          "target": "Task",
+          "description": "Tasks associated with this lead (follow-ups, actions)."
+        },
+        "notes": {
+          "type": "One-to-Many",
+          "target": "Note",
+          "description": "Notes added by users or AI about the lead."
+        },
+        "messages": {
+          "type": "One-to-Many",
+          "target": "Message",
+          "description": "Communication messages related to the lead."
+        },
+        "events": {
+          "type": "One-to-Many",
+          "target": "Event",
+          "description": "Timeline events (calls, meetings, updates)."
+        },
+        "callRecords": {
+          "type": "One-to-Many",
+          "target": "CallRecord",
+          "description": "Call history with the lead."
+        },
+        "meetingRecords": {
+          "type": "One-to-Many",
+          "target": "MeetingRecord",
+          "description": "Meetings scheduled or completed with the lead."
+        },
+        "aiRecommendations": {
+          "type": "One-to-Many",
+          "target": "AIRecommendation",
+          "description": "AI-generated suggestions for next actions."
+        },
+        "nextBestAction": {
+          "type": "One-to-One",
+          "target": "NextBestAction",
+          "description": "Best recommended action for this lead."
+        }
+      },
+      "indexes": [
+        [
+          "customerId",
+          "isDeleted"
+        ],
+        [
+          "storeId"
+        ],
+        [
+          "score"
+        ],
+        [
+          "stageId"
+        ],
+        [
+          "organizationId"
+        ],
+        [
+          "sourceCategory"
+        ],
+        [
+          "assignedToId"
+        ]
+      ],
+      "llmHints": {
+        "importantFilters": [
+          "organizationId (ALWAYS filter by this in queries)",
+          "isDeleted = false (exclude deleted leads)",
+          "stageId (for pipeline queries)",
+          "assignedToId (for user-specific queries)"
+        ],
+        "commonQueries": [
+          "Count leads by stage",
+          "Find high scoring leads",
+          "Get leads assigned to a user",
+          "Track conversion from one stage to another",
+          "Find leads created in a date range"
+        ]
+      }
+    },
+    "Stage": {
+      "description": "Defines the lifecycle stages of a lead in the sales pipeline. Linked to the Lead table via stageId.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique stage identifier."
+        },
+        "name": {
+          "type": "String",
+          "nullable": false,
+          "description": "Display name of the stage. Common values include: 'New Lead', 'Contacted', 'Qualified', 'Proposal Sent', 'Won', 'Lost', 'Follow up'."
+        },
+        "order": {
+          "type": "Int",
+          "nullable": false,
+          "description": "Numerical sequence of the stage in the sales workflow (lower values represent earlier stages)."
+        },
+        "organizationId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Organization.id",
+          "description": "Organization owning the stage."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Stage creation timestamp."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Last stage update timestamp."
+        }
+      }
+    },
+    "Organization": {
+      "description": "Represents a business or tenant using the system. All relevant records branch from here.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique organization identifier."
+        },
+        "name": {
+          "type": "String",
+          "nullable": false,
+          "description": "Name of the organization."
+        },
+        "isActive": {
+          "type": "Boolean",
+          "default": true,
+          "nullable": false,
+          "description": "Indicates if the organization's account is active."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Organization creation timestamp."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Last organization update timestamp."
+        }
+      }
+    },
+    "Store": {
+      "description": "Represents a physical or virtual store/branch associated with leads and organization.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique store identifier."
+        },
+        "name": {
+          "type": "String",
+          "nullable": false,
+          "description": "Store name or branch name."
+        },
+        "organizationId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Organization.id",
+          "description": "Organization owning the store."
+        },
+        "isActive": {
+          "type": "Boolean",
+          "default": true,
+          "nullable": false,
+          "description": "Indicates if the store is currently active."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Store creation timestamp."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Last store update timestamp."
+        }
+      }
+    },
+    "User": {
+      "description": "System user representing a sales agent, manager, or admin within an organization.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique user identifier."
+        },
+        "firstName": {
+          "type": "String",
+          "nullable": false,
+          "description": "User first name."
+        },
+        "lastName": {
+          "type": "String",
+          "nullable": true,
+          "description": "User last name."
+        },
+        "email": {
+          "type": "String",
+          "unique": true,
+          "nullable": false,
+          "description": "User email address used for login and notifications."
+        },
+        "role": {
+          "type": "Enum",
+          "enumName": "UserRole",
+          "values": [
+            "ADMIN",
+            "SALES",
+            "MANAGER"
+          ],
+          "nullable": false,
+          "description": "Role of the system user defining their permission scope. Associated Enum: UserRole (ADMIN, SALES, MANAGER)."
+        },
+        "organizationId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Organization.id",
+          "description": "Organization the user belongs to."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "User creation timestamp."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Last user update timestamp."
+        }
+      }
+    },
+    "Customer": {
+      "description": "Represents the underlying customer entity associated with one or more leads.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique customer identifier."
+        },
+        "firstName": {
+          "type": "String",
+          "nullable": false,
+          "description": "Customer first name."
+        },
+        "lastName": {
+          "type": "String",
+          "nullable": true,
+          "description": "Customer last name."
+        },
+        "email": {
+          "type": "String",
+          "nullable": true,
+          "description": "Customer email address."
+        },
+        "phone": {
+          "type": "String",
+          "nullable": true,
+          "description": "Customer phone number."
+        },
+        "organizationId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Organization.id",
+          "description": "Organization owning the customer record."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Customer creation timestamp."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Last customer update timestamp."
+        }
+      }
+    },
+    "Link": {
+      "description": "Tracking link associated with lead marketing campaigns.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique link identifier."
+        },
+        "url": {
+          "type": "String",
+          "nullable": false,
+          "description": "URL of the tracking link."
+        },
+        "source": {
+          "type": "String",
+          "nullable": true,
+          "description": "Marketing source of the link."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Link creation timestamp."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Last link update timestamp."
+        }
+      }
+    },
+    "LeadProductInterest": {
+      "description": "Represents the specific products, models, or variants a lead has shown interest in.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique interest record identifier."
+        },
+        "leadId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Lead.id",
+          "description": "Lead associated with the product interest."
+        },
+        "productName": {
+          "type": "String",
+          "nullable": true,
+          "description": "Name of the product."
+        },
+        "model": {
+          "type": "String",
+          "nullable": true,
+          "description": "Product model variant."
+        },
+        "fuel": {
+          "type": "String",
+          "nullable": true,
+          "description": "Fuel type of the product (if applicable)."
+        },
+        "color": {
+          "type": "String",
+          "nullable": true,
+          "description": "Preferred product color."
+        },
+        "transmission": {
+          "type": "String",
+          "nullable": true,
+          "description": "Transmission type preference (if applicable)."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Interest record creation timestamp."
+        }
+      }
+    },
+    "CustomerIntent": {
+      "description": "Machine learning predictions providing insights into a lead's purchase likelihood and behavior.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique intent record identifier."
+        },
+        "leadId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Lead.id",
+          "description": "Lead associated with the intent analysis."
+        },
+        "intentScore": {
+          "type": "Int",
+          "nullable": true,
+          "description": "Predicted purchase likelihood score."
+        },
+        "purchaseTimeline": {
+          "type": "String",
+          "nullable": true,
+          "description": "Estimated timeframe for the purchase decision."
+        },
+        "engagementStrength": {
+          "type": "String",
+          "nullable": true,
+          "description": "Metric measuring customer engagement level with the lead."
+        },
+        "sentiment": {
+          "type": "String",
+          "nullable": true,
+          "description": "Detected sentiment from customer conversations."
+        },
+        "sourceInfluence": {
+          "type": "String",
+          "nullable": true,
+          "description": "Impact of the acquisition source on the purchase decision."
+        },
+        "confidence": {
+          "type": "Float",
+          "nullable": true,
+          "description": "Confidence score of the intent prediction model."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Timestamp indicating the last intent prediction update."
+        }
+      }
+    },
+    "NextBestAction": {
+      "description": "AI-recommended next step or action to take in order to improve lead conversion rates.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique recommendation identifier."
+        },
+        "leadId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Lead.id",
+          "description": "Lead associated with the recommendation."
+        },
+        "businessGoal": {
+          "type": "String",
+          "nullable": true,
+          "description": "Target business goal of the recommended action."
+        },
+        "preferredChannel": {
+          "type": "String",
+          "nullable": true,
+          "description": "Preferred communication channel for the next action."
+        },
+        "bestTime": {
+          "type": "String",
+          "nullable": true,
+          "description": "Best time of day to contact the lead."
+        },
+        "aiAgent": {
+          "type": "String",
+          "nullable": true,
+          "description": "AI agent suggested to perform the action."
+        },
+        "confidence": {
+          "type": "Float",
+          "nullable": true,
+          "description": "Confidence score of the recommended action."
+        },
+        "recommendedTask": {
+          "type": "String",
+          "nullable": true,
+          "description": "Suggested follow-up task or event."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Recommendation creation timestamp."
+        }
+      }
+    },
+    "LeadActivityLog": {
+      "description": "Chronological timeline of events, system updates, and manual logs related to a specific lead.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique activity log identifier."
+        },
+        "leadId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Lead.id",
+          "description": "Lead associated with the activity."
+        },
+        "activityType": {
+          "type": "String",
+          "nullable": false,
+          "description": "Categorized type of the activity performed (e.g., STATUS_CHANGE, NOTE_ADDED)."
+        },
+        "description": {
+          "type": "String",
+          "nullable": true,
+          "description": "Short description of the activity event."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Activity creation timestamp."
+        },
+        "createdBy": {
+          "type": "String",
+          "nullable": true,
+          "description": "Identifier of the User or System that created the activity log."
+        }
+      }
+    }
+  },
+  "PID_TASK_PAGE": {
+    "Task": {
+      "description": "A scheduled action or task assigned to users for lead follow-ups or administrative duties.",
+      "columns": {
+        "id": {
+          "type": "String",
+          "primaryKey": true,
+          "default": "cuid()",
+          "nullable": false,
+          "description": "Unique task identifier."
+        },
+        "title": {
+          "type": "String",
+          "nullable": false,
+          "description": "Short title or summary of the task."
+        },
+        "description": {
+          "type": "String",
+          "nullable": true,
+          "description": "Detailed description and instructions for the task."
+        },
+        "priority": {
+          "type": "Enum",
+          "enumName": "TaskPriority",
+          "values": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "nullable": false,
+          "description": "Priority level of the task. Associated Enum: TaskPriority (LOW, MEDIUM, HIGH)."
+        },
+        "status": {
+          "type": "Enum",
+          "enumName": "TaskStatus",
+          "values": [
+            "PENDING",
+            "IN_PROGRESS",
+            "COMPLETED",
+            "CANCELLED"
+          ],
+          "nullable": false,
+          "description": "Current status of the task. Associated Enum: TaskStatus (PENDING, IN_PROGRESS, COMPLETED, CANCELLED)."
+        },
+        "dueDate": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Scheduled deadline or due date for the task."
+        },
+        "relatedLeadId": {
+          "type": "String",
+          "nullable": true,
+          "references": "Lead.id",
+          "description": "Optional lead associated with the task."
+        },
+        "assignedToId": {
+          "type": "String",
+          "nullable": true,
+          "references": "User.id",
+          "description": "User assigned to complete the task."
+        },
+        "organizationId": {
+          "type": "String",
+          "nullable": false,
+          "references": "Organization.id",
+          "description": "Organization owning the task."
+        },
+        "storeId": {
+          "type": "String",
+          "nullable": true,
+          "references": "Store.id",
+          "description": "Store associated with the task."
+        },
+        "createdById": {
+          "type": "String",
+          "nullable": true,
+          "references": "User.id",
+          "description": "User who originally created the task."
+        },
+        "updatedById": {
+          "type": "String",
+          "nullable": true,
+          "references": "User.id",
+          "description": "User who last updated the task."
+        },
+        "createdAt": {
+          "type": "DateTime",
+          "default": "now()",
+          "nullable": false,
+          "description": "Task creation timestamp."
+        },
+        "updatedAt": {
+          "type": "DateTime",
+          "nullable": true,
+          "description": "Last task update timestamp."
+        }
+      }
+    }
+  }
+}

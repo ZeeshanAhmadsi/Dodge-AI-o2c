@@ -1,0 +1,33 @@
+What was the customer's attitude during the call with David Skinner? Did they show any explicit interest?
+Give me an executive summary for the lead Tamara Welch.
+Analyze the call transcript for Tamara Welch. Were there any specific buying signals?
+Provide agent coaching feedback for Priya Verma based on her call with Tamara Welch.
+my name is Vaibhav
+
+### 1. The Executive Briefing (Tests `executive_lead_summary` template)
+"Give me an executive summary for the lead Tamara Welch."
+"Can you provide a quick executive briefing on Robert Bradley?"
+
+### 2. Deep Call & Transcript Analysis (Tests `call_transcript_analysis` template)
+"Analyze the call transcript for Tamara Welch. Were there any specific buying signals?"
+"What was the customer's attitude during the call with David Skinner? Did they show any explicit interest?"
+
+### 3. Agent Quality Assurance & Coaching (Tests `agent_coaching_feedback` template)
+"Provide agent coaching feedback for Priya Verma based on her call with Tamara Welch."
+"Did the agent's attitude negatively impact the call outcome with Margaret Williams?"
+
+### 4. Strategic Objection Handling (Tests `objection_handling_guide` template)
+"What is the primary objection for Kathryn Carroll, and how should we handle it given she wants a Toyota Hyryder?"
+"Give me an objection handling guide for leads who are concerned about 'price is high' with a 10-12 lakh budget."
+
+### 5. Laser-Focused Lead Filtering (Tests `advanced_filtering_retrieval` template)
+"Find all leads who are 'price sensitive' and interested in a Tata Nexon."
+"Which leads have a budget of 15-20 lakhs but are currently marked as 'not interested' or 'unreachable'?"
+
+### 6. Closing Strategies & Next Actions (Tests `sales_closing_strategy` template)
+"Develop a sales closing strategy for Stacy Ramos. What is the concrete next step?"
+"What is the recommended next action to convert Abigail Gomez from 'follow up' to a sale?"
+
+### 7. Portfolio Trend Analysis (Tests `portfolio_sales_analytics` template)
+"What is the average lead score for leads interested in the Honda City?"
+"What is the most common primary objection across our current lead pool?"

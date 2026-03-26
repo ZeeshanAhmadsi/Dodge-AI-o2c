@@ -1,0 +1,23 @@
+venv\Scripts\activate
+venv\Scripts\activate
+
+python -m app.scripts.ingest_data
+python -m app.scripts.ingest_templates
+
+python -m app.main
+
+python -m analytical.api
+ 
+venv\Scripts\python -m uvicorn app.main:app --port 8080 --reload
+venv\Scripts\python -m uvicorn app.main:app --reload
+
+
+python -m app.scripts.ingest_data
+python -m app.scripts.ingest_templates
+
+python -m app.main
+
+python -m analytical.api
+ 
+venv\Scripts\python -m uvicorn app.main:app --port 8080 --reload
+venv\Scripts\python -m uvicorn app.main:app --reload
