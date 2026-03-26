@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password123")
+NEO4J_DATABASE = os.getenv("NEO4J_DATABASE", "neo4j")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
 CYPHER_GENERATION_TEMPLATE = """Task:Generate Cypher statement to query a graph database.
@@ -51,7 +52,7 @@ Helpful Answer:"""
 QA_PROMPT = PromptTemplate(input_variables=["context", "question"], template=QA_TEMPLATE)
 
 def get_graph_qa_chain():
-    graph = Neo4jGraph(url=NEO4J_URI, username=NEO4J_USERNAME, password=NEO4J_PASSWORD)
+    graph = Neo4jGraph(url=NEO4J_URI, username=NEO4J_USERNAME, password=NEO4J_PASSWORD, database=NEO4J_DATABASE)
     graph.refresh_schema()
 
     if not GROQ_API_KEY:
