@@ -38,8 +38,15 @@ class Neo4jConnection:
         
         try:
             with self.driver.session(database=NEO4J_DATABASE) as session:
-                # Fetch connected paths to ensure the UI graph is fully interconnected
-                result = session.run("MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 250")
+                # Fetch connected flow paths (Customer -> SalesOrder -> Delivery -> etc)
+                # to ensure the UI graph renders an interconnected web rather than isolated stars.
+                query = """
+                MATCH p=(c:Customer)-[*1..4]->(endNode)
+                UNWIND relationships(p) AS r
+                RETURN DISTINCT startNode(r) AS n, r, endNode(r) AS m
+                LIMIT 300
+                """
+                result = session.run(query)
                 nodes_map = {}
                 
                 for record in result:
