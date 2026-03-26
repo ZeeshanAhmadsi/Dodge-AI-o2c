@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password123")
+NEO4J_DATABASE = os.getenv("NEO4J_DATABASE", "neo4j")
 
 class Neo4jConnection:
     def __init__(self):
@@ -36,7 +37,7 @@ class Neo4jConnection:
         edges = []
         
         try:
-            with self.driver.session() as session:
+            with self.driver.session(database=NEO4J_DATABASE) as session:
                 # Fetch connected paths to ensure the UI graph is fully interconnected
                 result = session.run("MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 250")
                 nodes_map = {}
