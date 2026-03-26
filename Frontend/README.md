@@ -1,31 +1,33 @@
-# Swiftex Sense Frontend
+# Dodge AI - Frontend
 
-This is a premium React-based frontend for the Swiftex Sense LMS Chatbot. It uses WebSockets for real-time interaction and supports analytical query result rendering (SQL and data tables).
+This is a premium, split-pane React frontend for the Dodge AI Order-to-Cash (O2C) Graph Explorer. It features an interactive 2D Graph visualization of the database alongside an AI Chatbot that parses natural language queries into Cypher statements.
 
-## 🚀 Getting Started
+## 🚀 Features
 
-1.  **Backend Setup**:
-    Ensure the backend is running at `http://localhost:8000`. 
-    Run it using:
-    ```bash
-    python -m analytical.api
-    ```
+- **Interactive Graph Visualization**: Uses `react-force-graph-2d` to render Neo4j nodes (Customers, Products, Sales Orders, Journal Entries).
+- **Auto-Highlighting Flow**: Any nodes or lineage paths discovered by the AI are automatically centered, zoomed, and highlighted in the graph interface.
+- **Granular Overlay**: Clicking any node brings up a beautiful details card that dynamically pulls the flat JSON properties from the graph.
+- **Dynamic Property Filtering**: Selectively hides internal graph state mapping fields (x, y, index) to ensure only strictly relevant business data is shown to the user.
 
-2.  **Frontend Setup**:
-    Navigate to this folder and install dependencies:
-    ```bash
-    npm install
-    ```
+## 📦 Getting Started
 
-3.  **Run Development Server**:
-    ```bash
-    npm run dev
-    ```
+### Prerequisites
+- Node.js (v18+)
+- Output from the Backend FastAPI server running on port `8000`.
 
-## 🎨 Features
+### Installation
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-- **Real-time**: Leverages WebSockets for zero-latency communication.
-- **Analytical Insights**: Renders generated SQL and data previews directly in the chat.
-- **Premium Design**: Dark mode glassmorphism with Inter typography.
-- **Dynamic UX**: Animated typing indicators and smooth scrolling.
-"# swiftex-sense-client" 
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### 🔧 Environment Variables
+Create a `.env` file in the root if your backend runs on a custom domain instead of localhost:
+```env
+VITE_API_URL=http://localhost:8000
+```

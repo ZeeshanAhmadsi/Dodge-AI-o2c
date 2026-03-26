@@ -1,120 +1,49 @@
-# RAG Chatbot Service
+# Dodge AI - Backend
 
-A modular, production-ready Retrieval-Augmented Generation (RAG) chatbot backend system built natively with Python, `langchain`, and Hugging Face.
+This is the Python FastAPI backend engine for the Dodge AI Order-to-Cash Graph Explorer. It handles the LangChain processing, translating natural language into complex structural Cypher queries to interrogate the Neo4j database.
 
-## 🏗️ Architecture
+## 🚀 Architecture
 
-The project has been architected strictly adhering to the Single Responsibility Principle, aggressively decoupling database ORM mapping, chunking logic, and embedding inferences, allowing components to scale dynamically.
+- **FastAPI Core**: Serves the `/api/v1/chat` LLM streaming endpoints.
+- **LangChain & Groq**: Uses `llama-3.3-70b-versatile` through the Groq API for lightning-fast natural language to Cypher translation.
+- **Graph Ingestion Engine**: Includes `scripts/ingest_graph.py`, a robust processing pipeline that reads gigabytes of flat SAP JSONL exports and maps them into interconnected nodes directly into Neo4j using dynamic property unpacking.
 
-```text
-swiftex-sense/
-│
-├── app/
-│   ├── main.py                # Main execution script / Sandbox tests
-│   │
-│   ├── core/
-│   │   └── config.py          # Centralized Environment Loading Validation
-│   │
-│   ├── services/
-│   │   ├── rag/
-│   │   │   ├── chunking.py    # Isolated text-splitting using LangChain
-│   │   │   └── embeddings.py  # Isolated Vector generation using Hugging Face
-│   │   │
-│   │   ├── llm.py             # Open placeholder for Chatbot LLM calls
-│   │   ├── validator.py       # Open placeholder for Response Validation
-│   │   └── fallback.py        # Open placeholder for Agentic guardrails
-│   │
-│   └── data/
-│       └── templates.json     # Configuration file for static instruction prompting
-│
-├── .env                       # Local secrets (ignored by Git)
-├── requirements.txt           # Standardized PIP dependencies
-└── README.md                  # Documentation File
-```
+## 📦 Getting Started
 
-## 🚀 Setup & Installation
+### Prerequisites
+- Python 3.10+
+- A running Neo4j Database instance (AuraDB or local desktop).
+- Groq API Key
 
-### 1. Prerequisites
-Ensure you have Python installed and create a Virtual Environment:
-```bash
-python -m venv venv
-```
+### Installation
 
-### 2. Activate the Environment
-* **Windows CMD:** `venv\Scripts\activate`
-* **Windows PowerShell:** `.\venv\Scripts\Activate.ps1`
-* **macOS/Linux:** `source venv/bin/activate`
-
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-Create a `.env` file at the root of your project matching the following schema. You can acquire a free token from the [Hugging Face Settings Page](https://huggingface.co/settings/tokens).
-
-```env
-APP_ENV=development
-
-# Hugging Face Settings
-HUGGINGFACE_API_KEY=your_hf_key_here
-EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-
-# RAG Chunk Settings
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=150
-```
-
-## 📚 Core Services Overview
-
-### `ChunkingService` (`app/services/rag/chunking.py`)
-Responsible exclusively for manipulating and splitting large text corpuses down to token-friendly sizes.
-* Parses variables intelligently against NLP contexts instead of hard line-breaks utilizing `RecursiveCharacterTextSplitter`.
-* Supports singular string ingestion (`split_text()`) or iterating over document datasets (`split_documents()`).
-
-### `EmbeddingService` (`app/services/rag/embeddings.py`)
-Responsible exclusively for talking with Hugging Face Inference endpoints and retrieving deep-learning Vector matrices representation of text strings.
-* Decoupled completely from upstream DB logic constraints.
-* Built dynamically utilizing `HuggingFaceEndpointEmbeddings`.
-
-## 📊 Analytical Chatbot API
-
-The system now includes a FastAPI-based backend that supports session-based conversation history ("back-to-back messages").
-
-### 🔌 Running the API
-1. Ensure dependencies are installed:
+1. Set up a virtual environment and install dependencies:
    ```bash
-   pip install -r requirements.txt
+   python -m venv venv
+   .\venv\Scripts\activate
+   pip install -r requirements.txt 
+   # (If requirements missing, manually install fastapi, uvicorn, neo4j, langchain-neo4j, langchain-groq, python-dotenv)
    ```
-2. Start the API server:
-   ```bash
-   python analytical/api.py
+
+2. Create a `.env` file containing your database credentials:
+   ```env
+   NEO4J_URI=bolt://localhost:7687
+   NEO4J_USERNAME=neo4j
+   NEO4J_PASSWORD=your_password
+   GROQ_API_KEY=your_groq_api_key
    ```
-   *The server will start on `http://127.0.0.1:8000`*
 
-### 📩 API Endpoints
-- `GET /sessions/new`: Generates a new `session_id`.
-- `POST /api/chat`: Send a query with an optional `session_id`.
-- `GET /api/history/{session_id}`: Retrieve chat history.
+### ⚙️ Database Ingestion
 
-### 🧪 Testing the API
-Once the server is running, you can test the conversation flow using:
+To populate your graph, place your SAP generic tables into `sap-o2c-data/` and run the script:
 ```bash
-python analytical/test_api.py
+$env:PYTHONPATH="." 
+python scripts/ingest_graph.py
 ```
 
-## 🎛️ Production API Server (FastAPI)
-The main backend service has been modularized into a production-ready FastAPI application.
+### 🏃 Running the Server
 
-### 🔌 Running the Server
-You can run the interactive API server using Uvicorn:
+Start the Uvicorn ASGI server:
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
-Once started, the API will be available at `http://127.0.0.1:8000`.
-
-### 📚 Interactive Documentation
-FastAPI automatically generates interactive API documentation.
-- **Swagger UI:** `http://127.0.0.1:8000/docs`
-- **ReDoc:** `http://127.0.0.1:8000/redoc`
-
